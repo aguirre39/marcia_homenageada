@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homenagem à Prof. Marcia | SSI IFRS POA</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        script: ['Dancing Script', 'cursive'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        marcia: { 
+                            light: '#f3e8ff',
+                            main: '#7e22ce', // Roxo (Engenharia/Sabedoria)
+                            gold: '#d97706',
+                            dark: '#581c87',
+                        },
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 1s ease-out forwards',
+                        'pulse-slow': 'pulse 4s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'typing': 'blink 1s step-end infinite',
+                        'steam': 'steam 2s ease-out infinite',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
+                        },
+                        steam: { 
+                            '0%': { transform: 'translateY(0) scale(1)', opacity: '0.8' },
+                            '100%': { transform: 'translateY(-20px) scale(1.5)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { overflow-x: hidden; }
+        
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #7e22ce, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .ide-window {
+            background: #2b2b2b;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid #444;
+        }
+        .ide-header {
+            background: #3c3f41;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #111;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        /* Syntax Highlight */
+        .keyword { color: #cc7832; font-weight: bold; } 
+        .string { color: #6a8759; } 
+        .method { color: #ffc66d; } 
+        .class-name { color: #a9b7c6; } 
+        .comment { color: #808080; font-style: italic; }
+        .annotation { color: #bbb529; }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-frame { position: relative; }
+
+        /* --- MODAL EMOÇÃO --- */
+        #emotional-modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #emotional-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .cursor::after {
+            content: '▋';
+            animation: blink 1s step-end infinite;
+            color: #d97706;
+            margin-left: 2px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased relative">
+
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- ====== MODAL DE "DEPLOY DO AFETO" ====== -->
+    <div id="emotional-modal" class="fixed inset-0 z-[5000] bg-slate-900/95 flex flex-col items-center justify-center px-4 backdrop-blur-sm">
+        <div class="max-w-2xl w-full">
+            
+            <!-- Terminal Window -->
+            <div class="bg-[#1e1e1e] rounded-lg shadow-2xl border border-gray-700 font-mono text-sm md:text-base overflow-hidden">
+                <!-- Header -->
+                <div class="bg-[#2d2d2d] px-4 py-2 flex items-center gap-2 border-b border-gray-700">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-gray-400 text-xs">terminal — git commit -m "Gratidão"</span>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6 h-[400px] overflow-y-auto text-gray-300 flex flex-col" id="terminal-body">
+                    <div id="terminal-content"></div>
+                    <span class="cursor"></span>
+                </div>
+            </div>
+
+            <button id="close-modal" class="mt-8 mx-auto hidden bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full border border-white/30 transition-all text-sm font-sans">
+                Fechar Terminal ❤️
+            </button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 top-0 transition-all duration-300 glass-panel">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-br from-marcia-main to-purple-600 text-white p-1.5 rounded-lg shadow-sm">
+                    <!-- Ícone de Engenharia/Arquitetura -->
+                    <i data-lucide="layers" class="w-5 h-5"></i>
+                </div>
+                <span class="font-serif font-bold text-lg text-slate-800 tracking-wide">SSI <span class="text-marcia-gold">IFRS POA</span></span>
+            </div>
+            <div class="text-[10px] md:text-xs font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 uppercase tracking-widest">
+                Profª Homenageada
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 relative pt-20 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-100/40 rounded-full blur-[100px] animate-pulse-slow"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-100/40 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 2s"></div>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+            
+            <!-- ====== FOTO FRAME ====== -->
+            <div class="mb-10 relative animate-slide-up photo-frame group cursor-default">
+                
+                <!-- 1. Annotation -->
+                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#2b2b2b] text-[#cc7832] text-xs font-mono py-1.5 px-3 rounded border border-gray-600 shadow-xl z-30 transition-all duration-300 group-hover:-translate-y-2">
+                    <span class="annotation">@HonoredProfessor</span>
+                </div>
+
+                <!-- 2. Círculo Central -->
+                <div class="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-[6px] border-white shadow-2xl relative z-10 bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center group-hover:shadow-purple-500/30 transition-all duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-purple-100/0 via-purple-100/0 to-purple-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative">
+                        <!-- Icone de Engenharia/Estrutura -->
+                        <i data-lucide="blocks" class="w-24 h-24 md:w-28 md:h-28 text-marcia-main stroke-[1.5] drop-shadow-sm transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ease-out"></i>
+                    </div>
+                </div>
+
+                <!-- 3. Badge -->
+                <div class="absolute -bottom-2 right-0 md:bottom-0 md:right-2 z-20 bg-gradient-to-r from-marcia-main to-marcia-gold text-white text-xs md:text-sm font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 transition-transform border-2 border-white group-hover:animate-pulse">
+                    <i data-lucide="award" class="w-4 h-4 fill-white"></i>
+                    <span>Professora Homenageada</span>
+                </div>
+            </div>
+
+            <span class="block font-script text-3xl md:text-5xl text-marcia-gold mb-4 animate-slide-up" style="animation-delay: 0.2s">Nossa Arquiteta de Conhecimento</span>
+            
+            <h1 class="font-serif text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight animate-slide-up" style="animation-delay: 0.3s">
+                Professora <span class="gradient-text">Marcia</span>
+            </h1>
+
+            <div class="h-8 md:h-10 mb-8 font-mono text-slate-600 text-sm md:text-lg animate-slide-up flex items-center justify-center gap-2" style="animation-delay: 0.4s">
+                <span class="keyword">extends</span> <span class="string">"</span><span id="typing-text" class="text-marcia-main font-semibold"></span><span class="string">"</span>;<span class="animate-typing border-r-2 border-slate-400 h-5 md:h-6 ml-1"></span>
+            </div>
+            
+            <p class="text-lg md:text-2xl text-slate-600 font-light max-w-2xl mx-auto leading-relaxed animate-slide-up px-4 italic" style="animation-delay: 0.5s">
+                "Você nos ensinou que código se apaga, mas uma boa <strong class="text-marcia-main font-medium">arquitetura humana</strong> dura para sempre. Obrigado por refatorar nossos caminhos."
+            </p>
+
+            <!-- BOTÃO GRANDE FINAL -->
+            <button onclick="startEmotionalSequence()" class="mt-12 group relative px-10 py-4 bg-gradient-to-r from-marcia-main to-purple-600 text-white rounded-full font-medium shadow-xl hover:shadow-purple-500/40 hover:-translate-y-1 transition-all duration-300 animate-slide-up overflow-hidden cursor-pointer z-40" style="animation-delay: 0.7s">
+                <div class="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-700 ease-out -translate-x-full transform skew-x-12"></div>
+                <span class="relative z-10 flex items-center gap-3 text-lg">
+                    Iniciar Deploy da Homenagem <i data-lucide="rocket" class="w-5 h-5 fill-current"></i>
+                </span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo do Site -->
+    <section class="py-24 px-4 bg-white">
+        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="order-2 md:order-1 reveal">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="git-branch" class="text-marcia-main w-6 h-6"></i>
+                    <span class="text-sm font-bold text-marcia-main tracking-wider uppercase">Engenharia do Afeto</span>
+                </div>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-slate-800 mb-8 leading-tight">
+                    Modelagem de <br> <span class="text-marcia-gold">Caracteres</span>
+                </h2>
+                <div class="prose text-slate-600 text-lg leading-relaxed space-y-6 text-justify font-light">
+                    <p>
+                        Professora Marcia, na Engenharia de Software, aprendemos sobre UML, diagramas e processos. Mas você nos ensinou o diagrama mais importante: o das relações humanas.
+                    </p>
+                    <p>
+                        Seus ensinamentos sobre qualidade de software se refletiram na qualidade do nosso aprendizado. Você nos mostrou que não adianta apenas "funcionar", tem que ser bem construído, com ética e propósito.
+                    </p>
+                </div>
+            </div>
+            <!-- IDE Visual (Adaptado para SE) -->
+            <div class="order-1 md:order-2 reveal transform hover:scale-[1.02] transition-transform duration-700">
+                <div class="ide-window text-xs md:text-sm shadow-2xl border-t-4 border-marcia-gold">
+                    <div class="ide-header justify-between">
+                        <div class="flex gap-2"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+                        <span class="text-xs text-gray-500 font-sans">Vida.java</span>
+                    </div>
+                    <div class="p-6 md:p-8 text-gray-300 overflow-x-auto leading-relaxed">
+                        <div class="mb-4"><span class="keyword">public class</span> <span class="class-name">Marcia</span> <span class="keyword">implements</span> <span class="class-name">Homenageada</span> {</div>
+                        <div class="pl-4 mb-2"><span class="annotation">@Requirement(priority="High")</span></div>
+                        <div class="pl-4 mb-4">
+                            <span class="keyword">public void</span> <span class="method">gerenciarProjetoVida</span>(<span class="class-name">Turma</span> t) {
+                                <span class="keyword">try</span> {
+                                    <span class="comment">// Analisando nossos requisitos...</span>
+                                    <span class="keyword">this</span>.definirMetasClaras();
+                                    <span class="keyword">this</span>.validarSentimentos();
+                                    
+                                    t.evoluir(<span class="string">"Agile Mindset"</span>);
+                                    
+                                } <span class="keyword">catch</span> (<span class="class-name">CrisisException</span> e) {
+                                    <span class="comment">// Gerenciando riscos com calma</span>
+                                    <span class="keyword">this</span>.refatorarProblemas();
+                                    <span class="keyword">this</span>.iterarComCarinho();
+                                }
+                            }
+                        </div>
+                        <div class="pl-4"><span class="keyword">return</span> <span class="string">"Legado Validado ✅"</span>;</div>
+                        <div>}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline (Ciclo de Vida) -->
+    <section class="py-20 bg-slate-50 relative border-t border-slate-200">
+        <div class="max-w-3xl mx-auto px-6">
+            <h2 class="text-center font-serif text-3xl font-bold mb-16 reveal">Nosso Ciclo de Vida</h2>
+            <div class="relative border-l-2 border-purple-200 ml-4 md:ml-1/2 md:translate-x-[-1px]">
+                
+                <!-- Item 1 -->
+                <div class="mb-16 relative pl-8 md:pl-0 reveal">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-4 border-white shadow"></div>
+                    <div class="md:flex md:justify-between md:items-start w-full">
+                        <div class="md:w-[45%] mb-2 md:mb-0 md:text-right md:pr-8">
+                            <span class="text-sm font-bold text-marcia-main font-mono">1. Requisitos</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">O Planejamento</h3>
+                        </div>
+                        <div class="md:w-[45%] md:pl-8 text-slate-600">
+                            No início, éramos apenas "Users Stories" desconexas. Você nos ajudou a entender o escopo da nossa profissão e a importância da documentação.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="mb-16 relative pl-8 md:pl-0 reveal">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-marcia-gold border-4 border-white shadow"></div>
+                    <div class="md:flex md:flex-row-reverse md:justify-between md:items-start w-full">
+                        <div class="md:w-[45%] mb-2 md:mb-0 md:pl-8">
+                            <span class="text-sm font-bold text-marcia-gold font-mono">2. Implementação</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">As Sprints Difíceis</h3>
+                        </div>
+                        <div class="md:w-[45%] md:text-right md:pr-8 text-slate-600">
+                            Quando os projetos pareciam impossíveis e o prazo apertava, sua calma foi nosso Scrum Master, removendo os impedimentos.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="relative pl-8 md:pl-0 reveal">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-marcia-main border-4 border-white shadow animate-pulse"></div>
+                    <div class="md:flex md:justify-between md:items-start w-full">
+                        <div class="md:w-[45%] mb-2 md:mb-0 md:text-right md:pr-8">
+                            <span class="text-sm font-bold text-purple-600 font-mono">3. Deploy</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">A Formatura</h3>
+                        </div>
+                        <div class="md:w-[45%] md:pl-8 text-slate-600">
+                            Hoje fazemos o deploy da versão 1.0 das nossas carreiras. Graças à sua arquitetura, somos sistemas robustos e prontos para o mercado.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="py-24 bg-[#1a1a1a] text-white relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <i data-lucide="heart" class="w-16 h-16 text-marcia-main fill-current mx-auto mb-6"></i>
+            <h2 class="font-serif text-4xl md:text-6xl mb-6">Obrigado, Prof. Marcia!</h2>
+            <div class="flex justify-center gap-8 text-sm font-mono text-gray-500">
+                <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> IFRS Campus Porto Alegre</span>
+                <span class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> Turma SSI</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        lucide.createIcons();
+        
+        // Typing Effect do Topo
+        const words = ["Inspiradora", "Exemplo", "Homenageada"];
+        let i = 0;
+        function typeWriter() {
+            const element = document.getElementById("typing-text");
+            if(!element) return;
+            const word = words[i];
+            let c = 0;
+            element.innerHTML = "";
+            const typing = setInterval(() => {
+                element.innerHTML += word.charAt(c);
+                c++;
+                if (c >= word.length) {
+                    clearInterval(typing);
+                    setTimeout(erase, 2000);
+                }
+            }, 100);
+        }
+        function erase() {
+            const element = document.getElementById("typing-text");
+            if(!element) return;
+            const word = words[i];
+            let c = word.length;
+            const erasing = setInterval(() => {
+                element.innerHTML = word.substring(0, c);
+                c--;
+                if (c < 0) {
+                    clearInterval(erasing);
+                    i = (i + 1) % words.length;
+                    setTimeout(typeWriter, 500);
+                }
+            }, 50);
+        }
+        setTimeout(typeWriter, 1000);
+
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ==========================================
+        //  ENGINE DE EMOÇÃO: "DEPLOY DO LEGADO"
+        // ==========================================
+        
+        const modal = document.getElementById('emotional-modal');
+        const termContent = document.getElementById('terminal-content');
+        const closeModal = document.getElementById('close-modal');
+        
+        // Logs adaptados para Eng. de Software / DevOps
+        const logs = [
+            { text: "$ ./deploy_homenagem.sh --role=Honored", delay: 500, color: "text-white" },
+            { text: "Iniciando pipeline de gratidão...", delay: 1000, color: "text-gray-400" },
+            { text: "> Verificando Integridade dos Ensinamentos... [OK]", delay: 1800, color: "text-green-400" },
+            { text: "> Analisando Arquitetura de Vida... [ROBUST]", delay: 2600, color: "text-green-400" },
+            { text: "> Carregando memórias das aulas de ES... [DONE]", delay: 3400, color: "text-blue-400" },
+            { text: "> Refatorando momentos difíceis em aprendizado...", delay: 4200, color: "text-yellow-400" },
+            { text: "WARNING: Excesso de carinho detectado no buffer.", delay: 5500, color: "text-red-400" },
+            { text: "Validando com a Turma...", delay: 6500, color: "text-gray-400" },
+            { text: "--------------------------------------------------", delay: 7000, color: "text-gray-500" },
+            { text: "HONOR DEPLOY SUCCESSFUL", delay: 7500, color: "text-green-500 font-bold text-xl" },
+            { text: "Exibindo manifesto final...", delay: 8500, color: "text-white" }
+        ];
+
+        // Mensagem final - Metáforas de Engenharia para Professora Homenageada
+        const finalMessage = "\n\nQuerida Professora Marcia,\n\n" +
+        "Ser nossa Professora Homenageada é o 'commit' mais importante que poderíamos fazer no repositório da nossa história.\n\n" +
+        "Na Engenharia de Software, aprendemos que um sistema bom é aquele que é confiável, manutenível e escalável. Você foi o 'Framework' que sustentou nosso crescimento.\n\n" +
+        "Levamos de você a melhor especificação de requisitos: ser profissionais éticos e pessoas melhores.\n\n" +
+        "Sua arquitetura em nossas vidas é definitiva. Não precisa de rollback.\n\n" +
+        "Com todo carinho,\n" +
+        "Sua Turma de SSI.";
+
+        function startEmotionalSequence() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            modal.classList.add('active');
+            termContent.innerHTML = "";
+            
+            logs.forEach((log, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.className = `mb-1 ${log.color}`;
+                    p.innerText = log.text;
+                    termContent.appendChild(p);
+                    
+                    const body = document.getElementById('terminal-body');
+                    body.scrollTop = body.scrollHeight;
+
+                    if (log.text.includes("DEPLOY SUCCESSFUL")) {
+                        launchFireworksSequence();
+                    }
+                    
+                    if (index === logs.length - 1) {
+                        setTimeout(typeFinalMessage, 1000);
+                    }
+
+                }, log.delay);
+            });
+        }
+
+        function typeFinalMessage() {
+            let charIndex = 0;
+            const msgElement = document.createElement('div');
+            msgElement.className = "text-amber-400 mt-4 font-bold whitespace-pre-wrap leading-relaxed";
+            termContent.appendChild(msgElement);
+
+            const typingInterval = setInterval(() => {
+                msgElement.textContent += finalMessage.charAt(charIndex);
+                charIndex++;
+                
+                const body = document.getElementById('terminal-body');
+                body.scrollTop = body.scrollHeight;
+
+                if (charIndex >= finalMessage.length) {
+                    clearInterval(typingInterval);
+                    closeModal.classList.remove('hidden');
+                    createFirework(window.innerWidth/2, window.innerHeight/2);
+                }
+            }, 50);
+        }
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+
+        // --- ENGINE DE FOGOS ---
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 1;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.friction = 0.98;
+                this.gravity = 0.03;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.01;
+            }
+        }
+
+        function createFirework(x, y) {
+            const colors = ['#7e22ce', '#d97706', '#fbbf24', '#ffffff', '#a855f7']; // Cores adaptadas (Roxo/Gold)
+            for (let i = 0; i < 80; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function launchFireworksSequence() {
+            let count = 0;
+            const interval = setInterval(() => {
+                const x = Math.random() * (innerWidth * 0.8) + (innerWidth * 0.1);
+                const y = Math.random() * (innerHeight * 0.5);
+                createFirework(x, y);
+                count++;
+                if(count > 15) clearInterval(interval);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
